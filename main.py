@@ -66,4 +66,4 @@ for item in image_cols:
       with cols[i]:
          st.image(img, use_column_width="always")
          sub_item = sub_item[:-4]
-         st.selectbox(label=r"My impression:", options=(DEFAULT, "Hate it", "Not great", "It's okay", "Like it", "Love it"), key=f"{sub_item}")
+         st.selectbox(label=r"Your impression:", options=(DEFAULT, "Hate it", "Not great", "It's okay", "Like it", "Love it"), key=f"{sub_item}")
