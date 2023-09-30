@@ -17,7 +17,9 @@ except Exception:
 supabase: Client = create_client(url, key)
 
 COL_NUM = 5
+TOP_K = 5
 DEFAULT = "No opinion"
+SCORES = {"Hate it": -2, "Not great": -1, "It's okay": 1, "Like it": 2, "Love it": 3}
 
 # Helper function
 def divide_list(input_list, n):
@@ -32,11 +34,13 @@ image_cols = divide_list(image_list, COL_NUM)
 def imgload(sub_item):
    return Image.open(os.path.join("imgs", sub_item))
 
-c = st.container()
 cnd = dict()
+tab1, tab2 = st.tabs(["Vote", "View Results"])
 
-with c:
-   st.header("LEAR Voting App")
+st.title("LEAR Voting App")
+
+with tab1:
+   st.header("Vote")
    st.write("Scroll through the page. Mark any items that you have strongish opinions on using the drop down menu. Press CLEAR if you want to restart. Enter your name and press SUBMIT when you've finalized your choice.")
    writes = "Current choices = "
    if list(st.session_state.keys()) != []:
@@ -58,6 +62,51 @@ with c:
    with but_cols[1]:
       if st.button("CLEAR"):
          st.experimental_rerun()
+
+with tab2:
+   st.header("View Results")
+   scorecritstring = f"Top {TOP_K} results. Scoring metric is as follows "
+   for key, value in my_dict.items():
+      scorecritstring += f" {key}: {value}, "
+   df = pd.DataFrame(supabase.table('votes').select("*").execute().data)
+   dfunique = df.sort_values("created_at").drop_duplicates(["user"], keep="last")
+
+   # Create an empty dictionary to store aggregated scores
+   aggregated_scores = {}
+
+   # Define a mapping of vote categories to scores
+   vote_scores = {
+       "Hate it": -2,
+       "Not great": -1,
+       "It's okay": 1,
+       "Like it": 2,
+       "Love it": 3,
+       # Add more vote categories and scores as needed
+   }
+
+   # Iterate through each participant's vote dictionary
+   for participant_vote in list(dfunique['votes']):
+       participant_vote = json.loads(participant_vote)
+       # Iterate through items and votes in the participant's vote
+       for item, vote in participant_vote.items():
+           # Check if the vote is not "No opinion"
+           if vote != "No opinion":
+               # Add the numeric score to the aggregated scores
+               aggregated_scores[item] = aggregated_scores.get(item, 0) + vote_scores.get(vote, 0)
+
+   # Sort the items in the aggregated_scores dictionary by their scores (in descending order)
+   sorted_items = sorted(aggregated_scores.items(), key=lambda x: x[1], reverse=True)
+
+   # Take the top 5 items
+   top_k_items = sorted_items[:TOP_K]
+
+   top_k_cols = st.columns(TOP_K)
+   for i1, si in enumerate(top_k_items):
+      with top_k_cols[i1]:
+         img = imgload(f"{sub_item}.png")
+         st.image(img, use_column_width="always")
+         st.write(f"Score: {si[1]}")
+
 
 for item in image_cols:
    cols = st.columns(COL_NUM)
