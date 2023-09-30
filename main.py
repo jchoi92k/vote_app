@@ -107,6 +107,7 @@ with tab2:
          st.image(img, use_column_width="always")
          st.write(f"Rank {i1+1} || Score: {si[1]}")
 
+st.write("---")
 
 for item in image_cols:
    cols = st.columns(COL_NUM)
