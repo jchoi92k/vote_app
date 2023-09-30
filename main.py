@@ -21,6 +21,16 @@ TOP_K = 5
 DEFAULT = "No opinion"
 SCORES = {"Hate it": -2, "Not great": -1, "It's okay": 1, "Like it": 2, "Love it": 3}
 
+# Define a mapping of vote categories to scores
+vote_scores = {
+    "Hate it": -2,
+    "Not great": -1,
+    "It's okay": 1,
+    "Like it": 2,
+    "Love it": 3,
+}
+
+
 # Helper function
 def divide_list(input_list, n):
    return [input_list[i:i + n] for i in range(0, len(input_list), n)]
@@ -37,10 +47,12 @@ def imgload(sub_item):
 cnd = dict()
 tab1, tab2 = st.tabs(["Vote", "View Results"])
 
-st.title("LEAR Voting App")
+
+with st.container():
+   st.header("LEAR Voting App")
 
 with tab1:
-   st.header("Vote")
+   st.subheader("Vote")
    st.write("Scroll through the page. Mark any items that you have strongish opinions on using the drop down menu. Press CLEAR if you want to restart. Enter your name and press SUBMIT when you've finalized your choice.")
    writes = "Current choices = "
    if list(st.session_state.keys()) != []:
@@ -64,25 +76,15 @@ with tab1:
          st.experimental_rerun()
 
 with tab2:
-   st.header("View Results")
+   st.subheader("View Results")
    scorecritstring = f"Top {TOP_K} results. Scoring metric is as follows "
-   for key, value in my_dict.items():
+   for key, value in vote_scores.items():
       scorecritstring += f" {key}: {value}, "
    df = pd.DataFrame(supabase.table('votes').select("*").execute().data)
    dfunique = df.sort_values("created_at").drop_duplicates(["user"], keep="last")
 
    # Create an empty dictionary to store aggregated scores
    aggregated_scores = {}
-
-   # Define a mapping of vote categories to scores
-   vote_scores = {
-       "Hate it": -2,
-       "Not great": -1,
-       "It's okay": 1,
-       "Like it": 2,
-       "Love it": 3,
-       # Add more vote categories and scores as needed
-   }
 
    # Iterate through each participant's vote dictionary
    for participant_vote in list(dfunique['votes']):
@@ -103,9 +105,9 @@ with tab2:
    top_k_cols = st.columns(TOP_K)
    for i1, si in enumerate(top_k_items):
       with top_k_cols[i1]:
-         img = imgload(f"{sub_item}.png")
+         img = imgload(f"{si[0]}.jpg")
          st.image(img, use_column_width="always")
-         st.write(f"Score: {si[1]}")
+         st.write(f"Rank {i1+1} || Score: {si[1]}")
 
 
 for item in image_cols:
