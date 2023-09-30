@@ -17,7 +17,7 @@ except Exception:
 supabase: Client = create_client(url, key)
 
 COL_NUM = 5
-TOP_K = 5
+TOP_K = 10
 DEFAULT = "No opinion"
 SCORES = {"Hate it": -2, "Not great": -1, "It's okay": 1, "Like it": 2, "Love it": 3}
 
@@ -44,12 +44,10 @@ image_cols = divide_list(image_list, COL_NUM)
 def imgload(sub_item):
    return Image.open(os.path.join("imgs", sub_item))
 
+st.header("LEAR Voting App")
+
 cnd = dict()
 tab1, tab2 = st.tabs(["Vote", "View Results"])
-
-
-with st.container():
-   st.header("LEAR Voting App")
 
 with tab1:
    st.subheader("Vote")
