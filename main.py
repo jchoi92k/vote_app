@@ -14,8 +14,16 @@ except Exception:
    url: str = st.secrets["URI"]
    key: str = st.secrets["KEE"]
 
+# Create Supabase client to read in data from Supabase
 supabase: Client = create_client(url, key)
 
+# Settings
+'''
+COL_NUM: Number of columns showing the images
+TOP_K: TOP_K items will be shown in the View Results tab
+DEFAULT: Default value to be shown when no choice is made (currently set to No opinion)
+SCORES: Scoring scales in str and their mapped scores in int
+'''
 COL_NUM = 5
 TOP_K = 10
 DEFAULT = "No opinion"
@@ -89,8 +97,8 @@ with tab2:
        participant_vote = json.loads(participant_vote)
        # Iterate through items and votes in the participant's vote
        for item, vote in participant_vote.items():
-           # Check if the vote is not "No opinion"
-           if vote != "No opinion":
+           # Check if the vote is not DEFAULT (i.e., "No opinion")
+           if vote != DEFAULT:
                # Add the numeric score to the aggregated scores
                aggregated_scores[item] = aggregated_scores.get(item, 0) + vote_scores.get(vote, 0)
 
