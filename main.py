@@ -18,12 +18,6 @@ except Exception:
 supabase: Client = create_client(url, key)
 
 # Settings
-'''
-COL_NUM: Number of columns showing the images
-TOP_K: TOP_K items will be shown in the View Results tab
-DEFAULT: Default value to be shown when no choice is made (currently set to No opinion)
-SCORES: Scoring scales in str and their mapped scores in int
-'''
 COL_NUM = 5
 TOP_K = 10
 DEFAULT = "No opinion"
